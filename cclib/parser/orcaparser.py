@@ -140,7 +140,8 @@ class ORCA(logfileparser.Logfile):
             if "SVN: $Rev" in possible_revision_line:
                 version = re.search(r"\d+", possible_revision_line).group()
                 self.metadata["package_version"] += f"+{version}"
-
+            if "6.0" in self.metadata['package_version']:
+                self.metadata['package_version'] = '6.0.0'
             self.version = parse_version(self.metadata["package_version"]).release
 
         # Extract basis-set info.
@@ -522,6 +523,10 @@ class ORCA(logfileparser.Logfile):
                 self.scftargets = []
 
             while "Total Energy       :" not in line:
+                if "final integration was updated by more than 5.0 mEh" in line:
+                    if 'warnings' not in self.metadata:
+                        self.metadata['warnings'] = []
+                    self.metadata['warnings'].append('final exchange deviates considerably')
                 line = next(inputfile)
             self.append_attribute("scfenergies", utils.float(line.split()[3]))
             if self.is_DFT:
@@ -897,6 +902,17 @@ Dispersion correction           -0.016199959
         if "The optimization did not converge" in line:
             if not hasattr(self, "optdone"):
                 self.optdone = []
+
+        if line.startswith("UHF SPIN CONTAMINATION"):
+            self.skip_lines(inputfile, ["d", "b", "text", "text", "text", "b"])
+            line = next(inputfile)
+            exp_val = float(line.split(":")[-1])
+            next(inputfile)
+            line = next(inputfile)
+            deviation = float(line.split(":")[-1])
+            self.s_squared = exp_val
+            self.s_squared_dev = deviation
+
 
         if line[0:16] == "ORBITAL ENERGIES":
             self.skip_lines(inputfile, ["d", "text", "text"])

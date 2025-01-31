@@ -74,6 +74,8 @@ class ccData:
         polarizabilities -- (dipole) polarizabilities, static or dynamic (list of arrays[2])
         pressure -- pressure used for Thermochemistry (float, atm)
         rotconsts -- rotational constants (array[2], GHz)
+        s_squared -- expectation value of S**2 operator (float)
+        s_squared_dev -- deviation of S**2 from ideal S**2 value (float)
         scancoords -- geometries of each scan step (array[3], angstroms)
         scanenergies -- energies of potential energy surface (list)
         scannames -- names of variables scanned (list of strings)
@@ -162,6 +164,8 @@ class ccData:
         "polarizabilities": Attribute(list, "polarizabilities", "N/A"),
         "pressure": Attribute(float, "pressure", "properties"),
         "rotconsts": Attribute(numpy.ndarray, "rotational constants", "atoms:coords:rotconsts"),
+        "s_squared": Attribute(float, "S^2 value", "properties"),
+        "s_squared_dev": Attribute(float, "S^2 deviation", "properties"),
         "scancoords": Attribute(numpy.ndarray, "step geometry", "optimization:scan"),
         "scanenergies": Attribute(list, "PES energies", "optimization:scan"),
         "scannames": Attribute(list, "variable names", "optimization:scan"),

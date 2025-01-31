@@ -135,6 +135,7 @@ class NBO(logfileparser.Logfile):
             line = next(inputfile)
 
             charges = []
+            spins = []
 
             while "==============" not in line:
                 population_analysis = line.split()
@@ -146,13 +147,24 @@ class NBO(logfileparser.Logfile):
                 valence = float(population_analysis[4])
                 rydberg = float(population_analysis[5])  # noqa: F841
                 total = float(population_analysis[6])  # noqa: F841
+                if len(population_analysis) == 8:
+                    if not hasattr(self, "atomspins"):
+                        self.atomspins = dict()
+                    spin = float(population_analysis[7])
+                    spins.append(spin)
 
                 # TODO append to attibutes
                 charges.append(natural_charge)
 
                 line = next(inputfile)
 
-            self.atomcharges["nbo"] = charges
+            nbo_charge_keys = ("nbo", "nbo_alpha", "nbo_beta")
+            for key in nbo_charge_keys:
+                if key not in self.atomcharges:
+                    self.atomcharges[key] = charges
+                    break
+            if spins:
+                self.atomspins["nbo"] = spins
 
             if not hasattr(self, "natom"):
                 self.set_attribute("natom", len(self.atomcharges["nbo"]))
