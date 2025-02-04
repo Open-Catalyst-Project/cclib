@@ -542,6 +542,8 @@ class ORCA(logfileparser.Logfile):
                     method = "HF"
             self.metadata["methods"].append(method)
 
+            self._get_integrated_densities(inputfile, line)
+
             self._append_scfvalues_scftargets(inputfile, line)
 
         # Sometimes the SCF does not converge, but does not halt the
@@ -3080,6 +3082,21 @@ Dispersion correction           -0.016199959
         return
 
     # end of parse_scf_expanded_format
+    def _get_integrated_densities(self, inputfile, line):
+        """
+        We've seen some strange cases where the integrated density is not
+        coming out close to the right number of electrons so we want to
+        keep track of that.
+        """
+        while not line.startswith('N(Alpha)'):
+            line = next(inputfile)
+        integrated_density = []
+        for i in range(3):
+            n_elec = float(re.search(r'\d+.\d+', line).group(0))
+            line = next(inputfile)
+            integrated_density.append(n_elec)
+        self.metadata['integrated_density'] = integrated_density
+       
 
     def _append_scfvalues_scftargets(self, inputfile, line):
         # The SCF convergence targets are always printed in this next section
