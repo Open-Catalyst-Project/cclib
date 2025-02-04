@@ -230,8 +230,13 @@ class NBO(logfileparser.Logfile):
         #  ----------------------------------------------------------------------------
 
         if "NATURAL BOND ORBITAL ANALYSIS" in line:
+            line = next(inputfile)
+            if 'Search terminated' in line:
+                skip = 6
+            else:
+                skip = 5
             # Skip to the values
-            for _ in range(6):
+            for _ in range(skip):
                 line = next(inputfile)
 
             nbo_analysis = line.split()
