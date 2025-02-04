@@ -81,7 +81,7 @@ class NBO(logfileparser.Logfile):
 
             # Skip empty lines
             while "Summary of Natural Population Analysis:" not in line:
-                if len(line.strip()) <= 0:
+                if len(line.strip()) <= 0 or 'effective core potential' in line:
                     line = next(inputfile)
                     continue
 
@@ -180,6 +180,8 @@ class NBO(logfileparser.Logfile):
         if line[33:51] == "Natural Population":
             line = next(inputfile)
             line = next(inputfile)
+            if 'Effective Core' in line:
+                line = next(inputfile)
 
             core = float(line.split()[1])  # noqa: F841
             # TODO append to attibutes
