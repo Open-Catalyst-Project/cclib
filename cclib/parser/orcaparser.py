@@ -3096,6 +3096,8 @@ Dispersion correction           -0.016199959
             line = next(inputfile)
             integrated_density.append(n_elec)
         self.metadata['integrated_density'] = integrated_density
+        if line.startswith('NL Energy'):
+            self.metadata['nl_energy'] = float(re.search(r'\d+.\d+', line).group(0))
        
 
     def _append_scfvalues_scftargets(self, inputfile, line):
