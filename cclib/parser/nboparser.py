@@ -138,19 +138,21 @@ class NBO(logfileparser.Logfile):
             spins = []
 
             while "==============" not in line:
+                first_five = line[0:5]
+                line = line[5:]
                 population_analysis = line.split()
 
-                atom = population_analysis[0]
-                no = int(population_analysis[1])
-                natural_charge = float(population_analysis[2])
-                core = float(population_analysis[3])
-                valence = float(population_analysis[4])
-                rydberg = float(population_analysis[5])  # noqa: F841
-                total = float(population_analysis[6])  # noqa: F841
-                if len(population_analysis) == 8:
+                atom = first_five.strip()
+                no = int(population_analysis[0])
+                natural_charge = float(population_analysis[1])
+                core = float(population_analysis[2])
+                valence = float(population_analysis[3])
+                rydberg = float(population_analysis[4])  # noqa: F841
+                total = float(population_analysis[5])  # noqa: F841
+                if len(population_analysis) == 7:
                     if not hasattr(self, "atomspins"):
                         self.atomspins = dict()
-                    spin = float(population_analysis[7])
+                    spin = float(population_analysis[6])
                     spins.append(spin)
 
                 # TODO append to attibutes
