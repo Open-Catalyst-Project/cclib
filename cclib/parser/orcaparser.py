@@ -529,6 +529,7 @@ class ORCA(logfileparser.Logfile):
                     self.metadata['warnings'].append('final exchange deviates considerably')
                 line = next(inputfile)
             self.append_attribute("scfenergies", utils.float(line.split()[3]))
+            self.metadata["total_energy"] = utils.float(line.split()[3])
             if self.is_DFT:
                 method = "DFT"
             else:
