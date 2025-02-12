@@ -2417,7 +2417,7 @@ Dispersion correction           -0.016199959
             assert "Total Dipole Moment" in total
 
             dipole = numpy.array([float(d) for d in total.split()[-3:]])
-            dipole = utils.convertor(dipole, "ebohr", "Debye")
+            # dipole = utils.convertor(dipole, "ebohr", "Debye")
 
             if not hasattr(self, "moments"):
                 self.set_attribute("moments", [self.reference, dipole])
@@ -2427,6 +2427,24 @@ Dispersion correction           -0.016199959
                 except AssertionError:
                     self.logger.warning("Overwriting previous multipole moments with new values")
                     self.set_attribute("moments", [self.reference, dipole])
+
+        if line.startswith("QUADRUPOLE MOMENT"):
+            self.skip_lines(inputfile, "d")
+            line = next(inputfile)  # blank or XYZ
+            if line.strip() == "":
+                while line.split() != ["XX", "YY", "ZZ",  "XY", "XZ", "YZ"]:
+                    line = next(inputfile)
+            self.skip_lines(inputfile, ["NUC", "EL"])
+            total = next(inputfile)
+            assert "TOT" in total
+
+            quadrupole = numpy.array([float(d) for d in total.split()[1:-1]])
+
+            if hasattr(self, "moments"):
+                self.moments.append(quadrupole)
+            else:
+                self.logger.warning("Should never find quadrupole without having first found dipole! Leaving dipole empty")
+                self.set_attribute("moments", [self.reference, None, quadrupole])
 
         if "Molecular Dynamics Iteration" in line:
             self.skip_lines(inputfile, ["d", "ORCA MD", "d", "New Coordinates"])
