@@ -225,13 +225,13 @@ class Logfile(ABC):
                     attr,
                     utils.convertor(numpy.asarray(getattr(data, attr)), "hartree", "eV").tolist(),
                 )
-        for attr in ("moenergies",):
-            if hasattr(data, attr):
-                setattr(
-                    data,
-                    attr,
-                    [utils.convertor(elem, "hartree", "eV") for elem in getattr(data, attr)],
-                )
+        #for attr in ("moenergies",):
+        #    if hasattr(data, attr):
+        #        setattr(
+        #            data,
+        #            attr,
+        #            [utils.convertor(elem, "hartree", "eV") for elem in getattr(data, attr)],
+        #        )
 
         # Perform final checks on values of attributes.
         data.check_values(logger=self.logger)
