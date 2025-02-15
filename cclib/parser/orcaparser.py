@@ -395,6 +395,10 @@ class ORCA(logfileparser.Logfile):
             line = next(inputfile)
             num_params = int(line.strip().split()[2])
 
+        if line.startswith('ECP PARAMETER INFORMATION'):
+            core = self._get_core_electrons(inputfile, line, len(self.metadata['coords']))
+            self.coreelectrons = core
+
         if line[0:15] == "Number of atoms":
             natom = int(line.split()[-1])
             self.set_attribute("natom", natom)
@@ -3101,6 +3105,31 @@ Dispersion correction           -0.016199959
         return
 
     # end of parse_scf_expanded_format
+    def _get_core_electrons(self, inputfile, line, n_atoms):
+        """
+        Orca reports the core electrons as groups and then establishes
+        a correspondence between atoms and groups.
+        """
+        group_to_core = {}
+        self.skip_lines(inputfile, ['d', 'b'])
+        line = next(inputfile)
+        pattern = re.compile(r'Group (\d+),.*replacing (\d+) core')
+        grouping = pattern.search(line)
+        while grouping is not None:
+            group_to_core[grouping.group(1)] = int(grouping.group(2))
+            line = next(inputfile)
+            grouping = pattern.search(line)
+
+        line = next(inputfile)
+        core = numpy.zeros(n_atoms)
+        pattern = re.compile(r'Atom\s+(\d+).*=>\s+(\d+)')
+        atom = pattern.search(line)
+        while atom is not None:
+            core[int(atom.group(1))] = group_to_core[atom.group(2)]
+            line = next(inputfile)
+            atom = pattern.search(line)
+        return core
+
     def _get_integrated_densities(self, inputfile, line):
         """
         We've seen some strange cases where the integrated density is not
